@@ -4,8 +4,9 @@
 #include <sys/wait.h>
 #include "Process.hpp"
 
-Process::Process(const std::vector<char*>& exec_args) : verbose(false)
+Process::Process(const std::vector<char*>& exec_args) : verbose(false), m_instring(NULL)
 {
+    int nbytes = 100;
     //int fd[2];
     if ( pipe(m_fd) < 0)
     {
@@ -19,6 +20,10 @@ Process::Process(const std::vector<char*>& exec_args) : verbose(false)
 	throw std::string("Could not create pipe");
     };
     
+    /* watch input  */
+    m_fds[0].fd = m_fd[2];
+    m_fds[0].events = POLLIN;
+
     m_pid = fork();
 
     if (m_pid < 0)
@@ -30,8 +35,18 @@ Process::Process(const std::vector<char*>& exec_args) : verbose(false)
 	/* parent process */
 	close(m_fd[0]);
 	m_pout = fdopen(m_fd[1], "w");
+	if ( m_pout == (FILE*)NULL )
+	{
+	    perror("fdopen");
+	    throw std::string("Cold not open pipe");
+	}
 	close(m_fd[3]);
 	m_pin = fdopen(m_fd[2], "r");
+	if ( m_pin == (FILE*)NULL )
+	{
+	    perror("fdopen");
+	    throw std::string("Could not open pipe");
+	}
 	if (verbose)
 	    std::cerr << "Opened stream to child " << m_pid << std::endl;
     } else if (m_pid == 0)
@@ -52,6 +67,7 @@ Process::~Process()
     int status;
     fclose(m_pout);
     fclose(m_pin);
+    free(m_instring);
     for(int i=0; i<4; ++i)
 	close(m_fd[i]);
     pid_t pid = wait(&status);
@@ -63,7 +79,7 @@ Process::~Process()
 
 std::ostream &operator<<(std::ostream& os, const Process &proc)
 {
-    
+    return os;
 }
 
 void Process::write(const std::string& line)
@@ -83,9 +99,26 @@ void Process::write(const std::string& line)
     }
 }
 
-std::string read()
+std::string Process::read()
 {
     std::string line;
+    char* mystring = NULL;
+    size_t num_bytes;
+
+    int ret  = poll(m_fds,2,1000);
+    if ( ret == -1 )
+    {
+	throw std::string("poll");
+    }
+    if (!ret)
+    { /* timeout occured */
+	return line;
+    }
+    if (m_fds[0].revents & POLLIN)
+    {
+	getline(&mystring, &num_bytes, m_pin);
+	line = mystring;
+    }
     return line;
 }
 

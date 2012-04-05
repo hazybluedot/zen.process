@@ -29,12 +29,19 @@ int main(int argc, char *argv[])
     if (N == 1)
     {
 	cerr << "Creating Process" << endl;
-	Process myproc = Process(args);
-	while (getline(cin,line))
-	{
-	    //stringstream ss(line, stringstream::out);
-	    //ss >> myproc;
-	    myproc.write(line);
+	try {
+	    Process myproc = Process(args);
+	    while (getline(cin,line))
+	    {
+		//stringstream ss(line, stringstream::out);
+		//ss >> myproc;
+		myproc.write(line);
+		string line = myproc.read();
+		cout << "Got a line: " << line << endl;
+	    }
+	} catch (std::string s) {
+	    cerr << "Error creating process: " << s << endl;
+	    exit(1);
 	}
 	return(EXIT_SUCCESS);
     }
@@ -52,6 +59,7 @@ int main(int argc, char *argv[])
 	    //std::ostream fstream(stream);
 	    std::cerr << "Attempting to write to fd " << fd << std::endl;
 	    fprintf(stream, "test %d\n", nn++);
+	    
 	    //stream << "test " << nn << std::endl;
 	    //write(fd, "test\n", 6);
 	    fflush(stream);
