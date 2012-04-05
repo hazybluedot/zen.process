@@ -32,8 +32,9 @@ int main(int argc, char *argv[])
 	Process myproc = Process(args);
 	while (getline(cin,line))
 	{
-	    stringstream ss(line, stringstream::out);
-	    ss >> myproc;
+	    //stringstream ss(line, stringstream::out);
+	    //ss >> myproc;
+	    myproc.write(line);
 	}
 	return(EXIT_SUCCESS);
     }

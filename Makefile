@@ -1,7 +1,7 @@
-#CXX 		:= g++
-#CXX_FLAGS 	:= -Wall -g -std=c++0x
+CXX 		:= g++
+CXX_FLAGS 	:= -Wall -g -std=c++0x
 #CXX_FLAGS := -std=c++0x -O3 -DNDEBUG -march=core2
-#LIBS		:= -lboost_program_options -lboost_system
+LIBS		:= -lboost_program_options -lboost_system
 SRCS			:= AgentList.cpp Process.cpp
 EXE_SRCS		:= process_list.cc
 OBJS 			:= $(SRCS:.cpp=.o)
