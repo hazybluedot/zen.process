@@ -19,13 +19,7 @@ process_test: process_test.o ${OBJS}
 	${CXX} $(CXX_FLAGS) -o $@ ${OBJS} process_test.o
 	mv $@ ${INSTALL_DIR}
 
-#generate dependancy files at the same time as object compilation
-%.o : %.cpp
-	$(CXX) $(CXX_FLAGS) $(INCLUDE_PATHS) -MMD -o $@ -c $< 
-	@cp $*.d $*.P; \
-	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-	 	  -e '/^$$/ d' -e 's/$$/ :/' < $*.P >> $*.d; \
-	  rm -f $*.P
+include ../make_depend.mk
 
 -include $(SRCS:.cpp=.d)
 -include $(EXE_SRCS:.cc=.d)
