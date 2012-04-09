@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 {
     using namespace std;
 
+    bool verbose=true;
     std::vector<char*> args;
     int N = atoi(argv[1]);
     for(int nn=2; nn<argc; ++nn)
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
 	return(EXIT_SUCCESS);
     }
 
-    ProcessList m_list(N, args, true);
+    ProcessList m_list(N, args, verbose);
     ProcessList::const_iterator end = m_list.end();
     
     unsigned int nn=0;

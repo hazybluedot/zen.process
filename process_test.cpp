@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     string line;
     string output;
     //try {
-	auto_ptr<Process> myproc(new Process(args));
+    auto_ptr<Process> myproc(new Process(args,true));
 	//} catch (std::string s)
 	/* {
 	cerr << "Exception thrown: " << s << endl;
@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
 	line = ss.str();
 	cerr << "calling write with line=" << line << "END" << endl;
 	myproc->write(line);
+	output = myproc->read();
+	cerr << "output from process: " << output << "END" << endl;
     }
 
     myproc->close_output();
-    output = myproc->read();
-    cerr << "output from process: " << output << "END" << endl;
     
     //delete myproc;
     cerr << "Program exiting" << endl;
