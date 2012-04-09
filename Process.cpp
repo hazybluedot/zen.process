@@ -39,6 +39,7 @@ Process::Process(const std::vector<char*>& exec_args) :
     m_pin((FILE*)NULL),
     m_instring(NULL)
 {
+    int nbytes = 100;
     if ( pipe(m_fd) < 0)
     {
 	perror("pipe");

@@ -14,6 +14,7 @@ public:
     Process& operator=(const Process &p);
     Process(Process&& other);
     Process& operator=(Process&& other);
+
     ~Process();
 
     void write(const std::string&);
