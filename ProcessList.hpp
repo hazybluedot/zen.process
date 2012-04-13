@@ -13,7 +13,7 @@ public:
     typedef std::vector<value_type>::iterator iterator;
     typedef std::vector<value_type>::const_iterator const_iterator;
 
-    ProcessList(int N,  const std::vector<char*>&, bool verbose);
+    ProcessList(int N,  const Process::arg_type&, bool verbose);
     ~ProcessList();
 
     inline iterator begin() { return m_ProcessList.begin(); };

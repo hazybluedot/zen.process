@@ -1,6 +1,7 @@
+
 #include "ProcessList.hpp"
 
-ProcessList::ProcessList(int N,  const std::vector<char*>& args, bool verbose)
+ProcessList::ProcessList(int N,  const Process::arg_type& args, bool verbose)
 {
     for(int nn=0; nn<N; ++nn)
     {

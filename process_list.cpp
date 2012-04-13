@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     using namespace std;
 
     bool verbose=true;
-    std::vector<char*> args;
+    Process::arg_type args;
     int N = atoi(argv[1]);
     for(int nn=2; nn<argc; ++nn)
     {
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     {
 	cerr << "Creating Process" << endl;
 	try {
-	    Process myproc = Process(args);
+	    Process myproc = Process(args,verbose);
 	    while (getline(cin,line))
 	    {
 		//stringstream ss(line, stringstream::out);
@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 	return(EXIT_SUCCESS);
     }
 
+    /*
     ProcessList m_list(N, args, verbose);
     ProcessList::const_iterator end = m_list.end();
     
@@ -63,5 +64,6 @@ int main(int argc, char *argv[])
 	    ++it;
 	}
     }
+    */
     return(EXIT_SUCCESS);
 }

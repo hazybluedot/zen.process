@@ -10,30 +10,25 @@ int main(int argc, char *argv[])
 {
     using namespace std;
     //Process* myproc;
-    std::vector<char*> args;
+    Process::arg_type args;
 
     for(int nn=1; nn<argc; ++nn)
     {
 	std::cerr << "Arg: " << argv[nn] << std::endl;
 	args.push_back(argv[nn]);
     }
-    args.push_back( NULL );
+    //args.push_back( NULL );
 
     
     string line;
     string output;
-    //try {
-    auto_ptr<Process> myproc(new Process(args,true));
-	//} catch (std::string s)
-	/* {
-	cerr << "Exception thrown: " << s << endl;
-	return(EXIT_FAILURE);
-	}*/
+
+    unique_ptr<Process> myproc(new Process(args,true));
 
     for(int n=0; n<5; ++n) {
 
 	stringstream ss(line);
-	ss << "This is test " << n << endl;
+	ss << "1+" << n << endl;
 	line = ss.str();
 	cerr << "calling write with line=" << line << "END" << endl;
 	myproc->write(line);

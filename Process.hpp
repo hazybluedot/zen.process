@@ -14,8 +14,10 @@
 class Process
 {
 public:
-    Process(const std::vector<char*>&, bool verbose);
-    Process(const std::vector<char*>&);
+    typedef std::vector<std::string> arg_type;
+
+    Process(const arg_type&, bool verbose=false);
+    //Process(const arg_type&);
     Process(const Process &p);
     Process& operator=(const Process &p);
     Process(Process&& other);
@@ -43,7 +45,7 @@ private:
     char *m_instring;
     int m_status;
 
-    void create(const std::vector<char*>&);
+    void create(const arg_type&);
     int close_stream(FILE*);
 };
 

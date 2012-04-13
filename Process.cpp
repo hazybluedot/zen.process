@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include "utils.hpp"
 #include "Process.hpp"
 
 bool is_valid(FILE* fs)
@@ -33,7 +34,8 @@ FILE* fdopen_stream(int *fd, const char* direction)
     return fp;
 };
 
-Process::Process(const std::vector<char*>& exec_args) : 
+/*
+Process::Process(const arg_type& exec_args) : 
     verbose(false), 
     m_name(exec_args[0]),
     m_pid((pid_t)NULL),
@@ -45,8 +47,9 @@ Process::Process(const std::vector<char*>& exec_args) :
 {
     create(exec_args);
 }
+*/
 
-Process::Process(const std::vector<char*>& exec_args, bool verbose) : 
+Process::Process(const arg_type& exec_args, bool verbose) : 
     verbose(verbose), 
     m_name(exec_args[0]),
     m_pid((pid_t)NULL),
@@ -59,7 +62,7 @@ Process::Process(const std::vector<char*>& exec_args, bool verbose) :
     create(exec_args);
 }
 
-void Process::create(const std::vector<char*>& exec_args)
+void Process::create(const arg_type& exec_args)
 {
 
     if ( pipe(m_readpipe) < 0  ||  pipe(m_writepipe) < 0 )
@@ -97,7 +100,11 @@ void Process::create(const std::vector<char*>& exec_args)
 	close(PARENT_READ);
 	dup2(CHILD_READ, 0); //close(CHILD_READ);
 	dup2(CHILD_WRITE,1); //close(CHILD_WRITE);
-	int ret = execvp(exec_args[0], const_cast<char**>( &exec_args[0] ) );
+	std::vector<const char*> vc = convert_vs2vc(exec_args);
+	std::cerr << "Aargs (char*): " << std::endl;
+	std::cerr << vc << std::endl;
+
+	int ret = execvp(vc[0], const_cast<char**>( &vc[0] ) );
 	perror("execvp");
 	throw std::string("Could not execv process");
     }
@@ -189,6 +196,18 @@ std::string Process::read()
     char* mystring = NULL;
     size_t num_bytes;
 
+    getline(&mystring, &num_bytes, m_pin);
+    line = mystring;
+    return line;
+}
+
+/*
+std::string Process::read()
+{
+    std::string line;
+    char* mystring = NULL;
+    size_t num_bytes;
+
     if (feof(m_pin))
     {
 	std::cerr << "Process closed file descriptor" << std::endl;
@@ -201,8 +220,8 @@ std::string Process::read()
 	throw std::string("poll");
     }
     if (!ret)
-    { /* timeout occured */
-	return line;
+    { // timeout occured 
+/*	return line;
     }
     
     if (m_fds[0].revents & POLLHUP)
@@ -217,6 +236,7 @@ std::string Process::read()
     }
     return line;
 }
+*/
 
 int Process::wait()
 {
