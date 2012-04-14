@@ -11,11 +11,30 @@
 #define CHILD_READ      m_writepipe[0]
 #define PARENT_WRITE	m_writepipe[1]
 
+struct ProcessStruct
+{
+    typedef std::vector<std::string> arg_type;
+    
+    ProcessStruct(const arg_type& args, bool verbose) : 
+	verbose(verbose),
+	args(args),
+	stdin(""),
+	stdout(""),
+	stderr("") {};
+
+    bool verbose;
+    arg_type args;
+    std::string stdin;
+    std::string stdout;
+    std::string stderr;
+};
+
 class Process
 {
 public:
-    typedef std::vector<std::string> arg_type;
+    typedef ProcessStruct::arg_type arg_type;
 
+    Process(const ProcessStruct& pstruct);
     Process(const arg_type&, bool verbose=false);
     //Process(const arg_type&);
     Process(const Process &p);
@@ -45,7 +64,7 @@ private:
     char *m_instring;
     int m_status;
 
-    void create(const arg_type&);
+    void create(const arg_type&, const std::string& stderr="");
     int close_stream(FILE*);
 };
 

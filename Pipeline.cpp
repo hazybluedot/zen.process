@@ -30,7 +30,7 @@ Pipeline::~Pipeline()
     for_each(m_processes.begin(), m_processes.end(), [](value_type p)
 	     {
 		 int status;
-		 int ret = waitpid(p.first,&status,0);
+		 waitpid(p.first,&status,0);
 	     }
 	);
     fclose(m_pread);
@@ -94,7 +94,8 @@ void Pipeline::execute(const arg_type& argsv)
 		     close(it->second[0]);
 		     if (it!=begin)
 			 close(it->second[1]);
-		     std::cerr << "Adding " << pid << " to parent's process list" << std::endl;
+		     if (verbose)
+			 std::cerr << "Adding " << pid << " to parent's process list" << std::endl;
 		     it->first = pid; //TODO: check that this really is a reference and PIDs are saved in parent
 		 }
 		 ++it;
@@ -107,19 +108,10 @@ void Pipeline::execute(const arg_type& argsv)
     if (verbose)
 	std::cerr << "Parent opening write stream on fd" << m_processes.begin()->second[1] << std::endl;
     m_pwrite = fdopen(m_processes.begin()->second[1], "w");
-    for_each(m_processes.begin(), m_processes.end(), [this](value_type p)
-	     {
-		 std::cerr << p.first << std::endl;
-	     }
-	);
-    // system("ls -l /proc/self/fd");
-
 }
 
 void Pipeline::write(const std::string& line)
 {
-    //if (is_valid(m_pwrite))
-    //{
     if (verbose)
     {
 	std::cerr << "writing line to process " << m_processes.at(0).first << std::endl;
@@ -127,8 +119,6 @@ void Pipeline::write(const std::string& line)
     }
     fputs(line.c_str(), m_pwrite);
     fflush(m_pwrite);
-    //}
-
 };
 
 std::string Pipeline::read()

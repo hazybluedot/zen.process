@@ -1,7 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <fcntl.h>
 #include <unistd.h>
+
+#include <cstdlib>
+#include <cstdio>
 #include <sys/wait.h>
+#include <algorithm>
 #include "utils.hpp"
 #include "Process.hpp"
 
@@ -34,10 +37,9 @@ FILE* fdopen_stream(int *fd, const char* direction)
     return fp;
 };
 
-/*
-Process::Process(const arg_type& exec_args) : 
-    verbose(false), 
-    m_name(exec_args[0]),
+Process::Process(const ProcessStruct& pstruct) :
+    verbose(pstruct.verbose), 
+    m_name(pstruct.args[0]),
     m_pid((pid_t)NULL),
     m_writepipe {-1,-1},
     m_readpipe {-1,-1},
@@ -45,9 +47,8 @@ Process::Process(const arg_type& exec_args) :
     m_pin((FILE*)NULL),
     m_instring(NULL)
 {
-    create(exec_args);
+    create(pstruct.args);
 }
-*/
 
 Process::Process(const arg_type& exec_args, bool verbose) : 
     verbose(verbose), 
@@ -62,7 +63,7 @@ Process::Process(const arg_type& exec_args, bool verbose) :
     create(exec_args);
 }
 
-void Process::create(const arg_type& exec_args)
+void Process::create(const arg_type& exec_args, const std::string& stderr)
 {
 
     if ( pipe(m_readpipe) < 0  ||  pipe(m_writepipe) < 0 )
@@ -100,11 +101,22 @@ void Process::create(const arg_type& exec_args)
 	close(PARENT_READ);
 	dup2(CHILD_READ, 0); //close(CHILD_READ);
 	dup2(CHILD_WRITE,1); //close(CHILD_WRITE);
-	std::vector<const char*> vc = convert_vs2vc(exec_args);
-	std::cerr << "Aargs (char*): " << std::endl;
-	std::cerr << vc << std::endl;
+	//if (stderr != "")
+	//{
+	std::string error_log = m_name + ".error";
+	if (verbose)
+	    std::cerr << "Redirecting standard error to file " << error_log << std::endl;
+	int fd = open(error_log.c_str(), O_WRONLY | O_CREAT);
+	dup2(fd,2);
+	    //}
+	//std::vector<const char*> vc = convert_vs2vc(exec_args);
+	std::vector<const char*> vc;
+	std::transform(exec_args.begin(), exec_args.end(), std::back_inserter(vc), [](const std::string& s) {
+		return s.c_str();
+	    }
+	    );
 
-	int ret = execvp(vc[0], const_cast<char**>( &vc[0] ) );
+	execvp(vc[0], const_cast<char**>( &vc[0] ) );
 	perror("execvp");
 	throw std::string("Could not execv process");
     }
@@ -221,7 +233,7 @@ std::string Process::read()
     }
     if (!ret)
     { // timeout occured 
-/*	return line;
+	return line;
     }
     
     if (m_fds[0].revents & POLLHUP)

@@ -21,6 +21,8 @@ public:
 
 private:
     std::vector<std::unique_ptr<Process> > m_ProcessList;
+
+    void sigchld_handler(int signo);
 };
 
 #endif

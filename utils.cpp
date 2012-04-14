@@ -9,20 +9,14 @@
 vecvecstr make_log_args(const vecstr& args, std::string logname)
 {
 
-    std::cerr << "Teeing process output and logging to " << logname << std::endl;
     vecvecstr argsv;
     argsv.push_back(args);
 
     vecstr logargs;
     logargs.push_back( "tee" );
-    //char* clogname = strdup(logname.c_str());
     logargs.push_back( logname );
     argsv.emplace_back(logargs);
-    //free(clogname);
-    //std::cerr << "Returning argsv:" << std::endl;
-    //std::cerr << argsv << std::endl;
     return argsv;
-    //return std::move(argsv);
 }
 
 const char *convert(const std::string & s)
