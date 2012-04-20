@@ -1,4 +1,6 @@
 
+#include <sys/wait.h>
+
 #include "ProcessList.hpp"
 
 ProcessList::ProcessList(int N,  const Process::arg_type& args, bool verbose)
@@ -34,18 +36,20 @@ void ProcessList::sigchld_handler(int signo)
 	}
 
 	/* find the process that signaled us */
-	for_each(m_processes.begin(), m_processes.end(), [](std::unique_ptr<Process>& p)
-		 {
-		     if (p->m_pid == pid) {
-			 p->have_status = 1;
-			 /* If process has terminated, stop waiting for its output.  */
-			 if (WIFSIGNALED (w) || WIFEXITED (w))
-			     if (p->input_descriptor)
-				 FD_CLR (p->input_descriptor, &input_wait_mask);
-			 /* The program should check this flag from time to time
-			    to see if there is any news in process_list.  */
-			 ++process_status_change;
-		     }
-		 }
-	    );
+	// std::for_each(m_processes.begin(), m_processes.end(), [](std::unique_ptr<Process>& p)
+	// 	 {
+	// 	     if (p->m_pid == pid) {
+	// 		 p->have_status = 1;
+	// 		 /* If process has terminated, stop waiting for its output.  */
+	// 		 if (WIFSIGNALED (w) || WIFEXITED (w))
+	// 		     if (p->input_descriptor)
+	// 			 FD_CLR (p->input_descriptor, &input_wait_mask);
+	// 		 /* The program should check this flag from time to time
+	// 		    to see if there is any news in process_list.  */
+	// 		 ++process_status_change;
+	// 	     }
+	// 	 }
+	//     );
+
+    }
 }

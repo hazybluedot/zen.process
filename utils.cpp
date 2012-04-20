@@ -12,22 +12,21 @@ vecvecstr make_log_args(const vecstr& args, std::string logname)
     vecvecstr argsv;
     argsv.push_back(args);
 
-    vecstr logargs;
-    logargs.push_back( "tee" );
-    logargs.push_back( logname );
+    vecstr logargs = {"tee", "-a", logname};
+    //logargs.push_back( "tee" );
+    //logargs.push_back( logname );
     argsv.emplace_back(logargs);
     return argsv;
-}
-
-const char *convert(const std::string & s)
-{
-   return s.c_str();
 }
 
 std::vector<const char*> convert_vs2vc(const std::vector<std::string>& vs)
 {
     std::vector<const char*> vc;
-    std::transform(vs.begin(), vs.end(), std::back_inserter(vc), convert);
+    std::transform(vs.begin(), vs.end(), std::back_inserter(vc), [](const std::string s)
+		   {
+		       return s.c_str();
+		   } );
+    vc.push_back( NULL );
     return vc;
 };
 

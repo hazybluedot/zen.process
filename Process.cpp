@@ -1,5 +1,6 @@
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <cstdlib>
 #include <cstdio>
@@ -11,30 +12,6 @@
 bool is_valid(FILE* fs)
 {
     return (fs != (FILE*)NULL);
-};
-
-FILE* fdopen_stream(int *fd, const char* direction)
-{
-    FILE *fp;
-    switch(direction[0])
-    {
-    case 'r':
-	close(fd[1]);
-	fp = fdopen(fd[0], direction);
-	break;
-    case 'w':
-	close(fd[0]);
-	fp = fdopen(fd[1], direction);
-	break;
-    default:
-	throw std::string("Unrecognized file direction");
-    }
-    if ( fp == (FILE*)NULL )
-    {
-	perror("fdopen");
-	throw std::string("Could not open pipe");
-    }
-    return fp;
 };
 
 Process::Process(const ProcessStruct& pstruct) :
@@ -75,8 +52,8 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
     }
 
     /* watch input  */
-    m_fds[0].fd = PARENT_READ;
-    m_fds[0].events = ( POLLIN | POLLHUP | POLLERR );
+    //m_fds[0].fd = PARENT_READ;
+    //m_fds[0].events = ( POLLIN | POLLHUP | POLLERR );
 
     if (verbose)
 	std::cerr << "Process " << m_name << ": Forking..." << std::endl;
@@ -90,38 +67,45 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
 	/* parent process */
 	close(CHILD_READ);
 	close(CHILD_WRITE);
+
 	m_pout = fdopen(PARENT_WRITE, "w");
-	m_pin = fdopen(PARENT_READ, "r");
+	if (m_pout == NULL)
+	    perror("Process fdopen(PARENT_WRITE)");
+	m_pin = fdopen(PARENT_READ, "r");	
+	if (m_pin == NULL)
+	    perror("Process fdopen(PARENT_READ)");
 	if (verbose)
 	    std::cerr << "Process " << m_name << ": Opened stream to child " << m_pid << " with output stream " << m_pout << " and input stream " << m_pin << std::endl;
+
     } else if (m_pid == 0)
     {
 	/* child process */
 	close(PARENT_WRITE);
 	close(PARENT_READ);
-	dup2(CHILD_READ, 0); //close(CHILD_READ);
-	dup2(CHILD_WRITE,1); //close(CHILD_WRITE);
-	//if (stderr != "")
-	//{
+	dup2(CHILD_READ, 0); close(CHILD_READ);
+	dup2(CHILD_WRITE,1); close(CHILD_WRITE);
+
 	std::string error_log = m_name + ".error";
 	if (verbose)
 	    std::cerr << "Redirecting standard error to file " << error_log << std::endl;
+	/*
 	int fd = open(error_log.c_str(), O_WRONLY | O_CREAT);
-	dup2(fd,2);
-	    //}
-	//std::vector<const char*> vc = convert_vs2vc(exec_args);
+	dup2(fd,2); close(fd);
+	*/
+
 	std::vector<const char*> vc;
 	std::transform(exec_args.begin(), exec_args.end(), std::back_inserter(vc), [](const std::string& s) {
 		return s.c_str();
 	    }
 	    );
-
+	vc.push_back( NULL );
 	execvp(vc[0], const_cast<char**>( &vc[0] ) );
 	perror("execvp");
 	throw std::string("Could not execv process");
     }
 };
 
+/*
 Process::Process(Process&& other) : 
     verbose(false), 
     m_pout((FILE*)NULL),
@@ -138,6 +122,7 @@ Process::Process(Process&& other) :
     other.m_pin = (FILE*)NULL;
     other.m_pid = (pid_t)NULL;
 }
+*/
 
 Process::~Process()
 {
@@ -148,25 +133,27 @@ Process::~Process()
     }
 
     int status;
-    close_stream(m_pout);
-    close_stream(m_pin);
-    free(m_instring);
 
-    /*
-    for(int i=0; i<4; ++i)
-	close(m_fd[i]);
-    */
+    if (m_pout != NULL)
+	if (fclose(m_pout) != 0)
+	    perror("fclose m_pout");
 
     if (m_pid != 0)
     {
 	if (verbose)
 	    std::cerr << "Calling wait on PID " << m_pid << std::endl;
-	pid_t pid = ::waitpid(m_pid, &status, 0);
-	if (pid < 0)
-	{
-	    perror("wait");
-	}
+	//kill(m_pid, SIGTERM);
+        while(::waitpid(m_pid, &status, 0) == -1)
+	    if (errno != EINTR) {
+		perror("waitpid");
+	    }
     }
+
+    if (m_pin != NULL)
+	if (fclose(m_pin) != 0)
+	    perror("fclose m_pin");
+
+
     if (verbose)
     {
 	std::cerr << "Process " << m_name << ": leaving ~Process()" << std::endl;
@@ -185,7 +172,6 @@ std::ostream &operator<<(std::ostream& os, const Process &proc)
 
 void Process::write(const std::string& line)
 {
-//    if (m_pout != (FILE*)NULL)
     if (is_valid(m_pout))
     {
 	if (verbose)
@@ -194,12 +180,20 @@ void Process::write(const std::string& line)
 	    std::cerr << line;
 	}
 	fputs(line.c_str(), m_pout);
+	if (ferror(m_pout))
+	    std::cerr << "Error writing to process " << m_pid << std::endl; 
 	fflush(m_pout);
     }
 }
 void Process::close_output()
 {
-    close_stream(m_pout);
+    if (m_pout != NULL)
+    {
+	if (fclose(m_pout) != 0)
+	    perror("fclose m_pout");
+	else
+	    m_pout = NULL;
+    }
 }
 
 std::string Process::read()
@@ -210,45 +204,9 @@ std::string Process::read()
 
     getline(&mystring, &num_bytes, m_pin);
     line = mystring;
+    free(mystring);
     return line;
 }
-
-/*
-std::string Process::read()
-{
-    std::string line;
-    char* mystring = NULL;
-    size_t num_bytes;
-
-    if (feof(m_pin))
-    {
-	std::cerr << "Process closed file descriptor" << std::endl;
-	return line;
-    };
-
-    int ret  = poll(m_fds,1,1000);
-    if ( ret == -1 )
-    {
-	throw std::string("poll");
-    }
-    if (!ret)
-    { // timeout occured 
-	return line;
-    }
-    
-    if (m_fds[0].revents & POLLHUP)
-    {
-	std::cerr << "File descriptor hung up" << std::endl;
-    }
-
-    if (m_fds[0].revents & POLLIN)
-    {
-	getline(&mystring, &num_bytes, m_pin);
-	line = mystring;
-    }
-    return line;
-}
-*/
 
 int Process::wait()
 {
@@ -267,22 +225,3 @@ std::istream &operator>>(std::istream& is, Process &proc)
     return is;
 }
 
-int Process::close_stream(FILE* stream)
-{
-    int ret=0;
-    if (stream != (FILE*)NULL && is_valid(stream) && ferror(stream) == 0)
-    {
-	if (verbose)
-	    std::cerr << "Closing stream " << stream << ": ";
-	int fd = fileno(stream);
-	int ret = fclose(stream);
-	if (ret == 0)
-	    stream = (FILE*)NULL;
-	if (verbose)
-	    std::cerr << ret << " ";
-	ret = close(fd);
-	if (verbose)
-	    std::cerr << ret << std::endl;
-    }
-    return ret;
-}

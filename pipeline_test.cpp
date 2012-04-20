@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 	std::cerr << "Arg: " << argv[nn] << std::endl;
 	args.push_back(argv[nn]);
     }
-    args.push_back( NULL );
 
     Pipeline::arg_type argsv;
     argsv.push_back(args);
@@ -38,20 +37,24 @@ int main(int argc, char *argv[])
     string line;
     string output;
 
+    for(int nn=0; nn < 2; ++nn)
     {
-	Pipeline mypipe(argsv,verbose);
+	{
+	    std::unique_ptr<Pipeline> mypipe_ptr(new Pipeline(argsv,verbose));
+	    //Pipeline& mypipe(*mypipe_ptr);
 	
-	for(int n=0; n<5; ++n) {
+	for(int n=0; n<10; ++n) {
 	    stringstream ss(line);
 	    ss << "1+" << n << endl;
 	    line = ss.str();
 	    cerr << "calling write with line=" << line << "END" << endl;
-	    mypipe.write(line);
-	    output = mypipe.read();
+	    mypipe_ptr->write(line);
+	    output = mypipe_ptr->read();
 	    cerr << "output from process: " << output << "END" << endl;
 	}
-	sleep(5);
+	//sleep(5);
 	cerr << "Pipeline going out of scope" << endl;
+	}
     }
     sleep(5);
     cerr << "Program exiting" << endl;
