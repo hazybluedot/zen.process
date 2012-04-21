@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "utils.hpp"
 #include "Process.hpp"
+#include "selfpipetrick.hpp"
 
 bool is_valid(FILE* fs)
 {
@@ -57,6 +58,8 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
 
     if (verbose)
 	std::cerr << "Process " << m_name << ": Forking..." << std::endl;
+    
+    SelfPipeTrick spt;
 
     if ( (m_pid = fork()) < 0)
     {
@@ -65,9 +68,17 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
     } else if (m_pid != 0)
     {
 	/* parent process */
+	//TODO: handle SIGCHLD to clean up Zombie children
 	close(CHILD_READ);
 	close(CHILD_WRITE);
 
+	try {
+	    spt.parent(exec_args);
+	} catch (std::runtime_error e)
+	{
+	    std::cerr << "Error: " << e.what() << std::endl;
+	    throw e;
+	}
 	m_pout = fdopen(PARENT_WRITE, "w");
 	if (m_pout == NULL)
 	    perror("Process fdopen(PARENT_WRITE)");
@@ -88,41 +99,12 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
 	std::string error_log = m_name + ".error";
 	if (verbose)
 	    std::cerr << "Redirecting standard error to file " << error_log << std::endl;
-	/*
 	int fd = open(error_log.c_str(), O_WRONLY | O_CREAT);
 	dup2(fd,2); close(fd);
-	*/
 
-	std::vector<const char*> vc;
-	std::transform(exec_args.begin(), exec_args.end(), std::back_inserter(vc), [](const std::string& s) {
-		return s.c_str();
-	    }
-	    );
-	vc.push_back( NULL );
-	execvp(vc[0], const_cast<char**>( &vc[0] ) );
-	perror("execvp");
-	throw std::string("Could not execv process");
+	spt.execvp(exec_args);
     }
 };
-
-/*
-Process::Process(Process&& other) : 
-    verbose(false), 
-    m_pout((FILE*)NULL),
-    m_pin((FILE*)NULL),
-    m_instring(NULL)
-{
-    verbose = other.verbose;
-    m_pout = other.m_pout;
-    m_pin = other.m_pin;
-    m_pid = other.m_pid;
-    m_instring = other.m_instring;
-
-    other.m_pout = (FILE*)NULL;
-    other.m_pin = (FILE*)NULL;
-    other.m_pid = (pid_t)NULL;
-}
-*/
 
 Process::~Process()
 {

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <stdexcept>
 #include "Pipeline.hpp"
 
 int main(int argc, char *argv[])
@@ -20,40 +21,45 @@ int main(int argc, char *argv[])
     }
 
     Pipeline::arg_type argsv;
+
+    std::vector<std::string> inargs;
+    inargs.push_back( "tee");
+    inargs.push_back( "pipeline_test.in.log");
+
+    argsv.push_back(inargs);
+
     argsv.push_back(args);
     
     args.clear();
-    args.push_back( "tee");
-    args.push_back( "pipeline_test.log");
-
-    argsv.push_back(args);
-
-    args.clear();
-    args.push_back( "tee");
-    args.push_back( "pipeline_test2.log");
+    args.push_back( "cat");
+    //args.push_back( "pipeline_test.out.log");
 
     argsv.push_back(args);
 
     string line;
     string output;
 
-    for(int nn=0; nn < 2; ++nn)
+    for(int nn=0; nn < 1; ++nn)
     {
-	{
+	
+	try {
 	    std::unique_ptr<Pipeline> mypipe_ptr(new Pipeline(argsv,verbose));
 	    //Pipeline& mypipe(*mypipe_ptr);
-	
-	for(int n=0; n<10; ++n) {
-	    stringstream ss(line);
-	    ss << "1+" << n << endl;
-	    line = ss.str();
-	    cerr << "calling write with line=" << line << "END" << endl;
-	    mypipe_ptr->write(line);
-	    output = mypipe_ptr->read();
-	    cerr << "output from process: " << output << "END" << endl;
-	}
-	//sleep(5);
-	cerr << "Pipeline going out of scope" << endl;
+	    sleep(1);
+	    for(int n=0; n<3; ++n) {
+		stringstream ss(line);
+		ss << "1+" << n << endl;
+		line = ss.str();
+		cerr << "calling write with line=" << line << "END" << endl;
+		mypipe_ptr->write(line);
+		output = mypipe_ptr->read();
+		cerr << "output from process: " << output << "END" << endl;
+	    }
+	    cerr << "Pipeline going out of scope" << endl;
+	} catch (std::runtime_error e) 
+	{
+	    std::cerr << "Got error: " << e.what() << std::endl;
+	    return(1);
 	}
     }
     sleep(5);
