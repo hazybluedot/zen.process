@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "Process.hpp"
 
@@ -11,7 +12,6 @@ class Pipeline
 {
 public:
     typedef std::pair<pid_t, int*> value_type;
-    //typedef std::vector<std::vector<char*> > arg_type;
     typedef std::vector<Process::arg_type> arg_type;
 public:
     Pipeline(const arg_type& argsv, const bool verbose);

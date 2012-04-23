@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
     argsv.push_back(args);
     
     args.clear();
-    args.push_back( "cat");
-    //args.push_back( "pipeline_test.out.log");
+    args.push_back( "tee");
+    args.push_back( "pipeline_test.out.log");
 
     argsv.push_back(args);
 
