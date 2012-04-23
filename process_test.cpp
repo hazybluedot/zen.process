@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 
     for(int nn=0; nn < 2; ++ nn)
     {
-	//unique_ptr<Process> myproc(new Process(args,true));
-	Process myproc(args,true);
+	unique_ptr<Process> myproc(new Process(args,true));
+	//Process myproc(args,true);
 	
 	for(int n=0; n<5; ++n) {
 	
@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
 	    ss << "1+" << n << endl;
 	    line = ss.str();
 	    cout << "calling write with line=" << line << "END" << endl;
-	    myproc.write(line);
-	    output = myproc.read();
+	    myproc->write(line);
+	    output = myproc->read();
 	    cout << "output from process: " << output << "END" << endl;
 	}
 

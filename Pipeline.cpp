@@ -17,7 +17,10 @@
 #include "Pipeline.hpp"
 
 Pipeline::Pipeline(const arg_type& argsv, const bool verbose) :
-    verbose(verbose)
+    verbose(verbose),
+    m_fd {-1,-1},
+    m_pread((FILE*)NULL),
+    m_pwrite((FILE*)NULL)
 {
     execute(argsv);
 };
@@ -46,6 +49,7 @@ Pipeline::~Pipeline()
 		 {
 		     std::cerr << ", waiting for " << p.first << "...";
 		 }
+		 kill(p.first, SIGTERM);
 		 while(waitpid(p.first,&status,0) == -1)
 		     if (errno != EINTR) {
 			 perror("~Pipeline waitpid");
@@ -56,6 +60,7 @@ Pipeline::~Pipeline()
 		 }
 	     }
 	);
+
     for_each(m_processes.begin(), m_processes.end(), [this](value_type p)
 	     {
 		 free(p.second);

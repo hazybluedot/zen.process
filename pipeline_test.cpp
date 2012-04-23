@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include "Pipeline.hpp"
+#include "utils.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -38,7 +39,8 @@ int main(int argc, char *argv[])
 
     string line;
     string output;
-
+    
+    std::cerr << argsv << std::endl;
     for(int nn=0; nn < 1; ++nn)
     {
 	
