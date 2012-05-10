@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sysexits.h>
@@ -16,13 +17,16 @@
 #include "selfpipetrick.hpp"
 #include "Pipeline.hpp"
 
-Pipeline::Pipeline(const arg_type& argsv, const bool verbose) :
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
+Pipeline::Pipeline(const arg_type& argsv, const bool verbose, const std::string& ids) :
     verbose(verbose),
     m_fd {-1,-1},
     m_pread((FILE*)NULL),
     m_pwrite((FILE*)NULL)
 {
-    execute(argsv);
+    execute(argsv, ids);
 };
 
 Pipeline::~Pipeline()
@@ -72,7 +76,7 @@ Pipeline::~Pipeline()
     fclose(m_pread);
 };
 
-void Pipeline::execute(const arg_type& argsv)
+void Pipeline::execute(const arg_type& argsv, const std::string& ids)
 {
     pipe(m_fd);
  
@@ -91,7 +95,7 @@ void Pipeline::execute(const arg_type& argsv)
     
     int *this_out;
     int *next_out = &m_fd[1];
-    for_each(rev_begin, rev_end, [this,end,begin,&it,&my_fds,&pend,&this_out,&next_out](std::vector<std::string> args)
+    for_each(rev_begin, rev_end, [this,end,begin,&it,&my_fds,&pend,&this_out,&next_out,&ids](std::vector<std::string> args)
 	     {
 		 pid_t pid;
 		 pid_t mypid;
@@ -141,6 +145,14 @@ void Pipeline::execute(const arg_type& argsv)
 		     close(fd[1]);
 		     dup2(fd[0],0); close(fd[0]);
 		     dup2(*this_out,1); close(*this_out);
+
+		     fs::path pathname(args[0]);
+		     std::string basename = pathname.filename().native();
+		     std::string error_log = basename + ids + ".error";
+		     if (verbose)
+			 std::cerr << "Redirecting standard error to file " << error_log << std::endl;
+		     int efd = open(error_log.c_str(), O_WRONLY | O_CREAT);
+		     dup2(efd,2); close(efd);
 
 		     if (verbose)
 		     {

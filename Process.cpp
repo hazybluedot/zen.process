@@ -99,7 +99,8 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
 	std::string error_log = m_name + ".error";
 	if (verbose)
 	    std::cerr << "Redirecting standard error to file " << error_log << std::endl;
-	int fd = open(error_log.c_str(), O_WRONLY | O_CREAT);
+	mode_t mode = S_IRUSR | S_IRGRP | S_IROTH;
+	int fd = open(error_log.c_str(), O_WRONLY | O_CREAT, mode);
 	dup2(fd,2); close(fd);
 
 	spt.execvp(exec_args);

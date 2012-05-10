@@ -14,7 +14,7 @@ public:
     typedef std::pair<pid_t, int*> value_type;
     typedef std::vector<Process::arg_type> arg_type;
 public:
-    Pipeline(const arg_type& argsv, const bool verbose);
+    Pipeline(const arg_type& argsv, const bool verbose, const std::string& ids="");
     ~Pipeline();
     
     void write(const std::string& line);
@@ -27,7 +27,7 @@ private:
     FILE* m_pread;
     FILE* m_pwrite;
 
-    void execute(const arg_type&);
+    void execute(const arg_type&, const std::string&);
 };
 
 #endif
