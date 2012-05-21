@@ -10,6 +10,9 @@
 #include "Process.hpp"
 #include "selfpipetrick.hpp"
 
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
 bool is_valid(FILE* fs)
 {
     return (fs != (FILE*)NULL);
@@ -28,7 +31,7 @@ Process::Process(const ProcessStruct& pstruct) :
     create(pstruct.args);
 }
 
-Process::Process(const arg_type& exec_args, bool verbose) : 
+Process::Process(const arg_type& exec_args, bool verbose,  const std::string& ids) : 
     verbose(verbose), 
     m_name(exec_args[0]),
     m_pid((pid_t)NULL),
@@ -38,10 +41,10 @@ Process::Process(const arg_type& exec_args, bool verbose) :
     m_pin((FILE*)NULL),
     m_instring(NULL)
 {
-    create(exec_args);
+    create(exec_args, ids);
 }
 
-void Process::create(const arg_type& exec_args, const std::string& stderr)
+void Process::create(const arg_type& exec_args, const std::string& ids)
 {
 
     if ( pipe(m_readpipe) < 0  ||  pipe(m_writepipe) < 0 )
@@ -96,11 +99,13 @@ void Process::create(const arg_type& exec_args, const std::string& stderr)
 	dup2(CHILD_READ, 0); close(CHILD_READ);
 	dup2(CHILD_WRITE,1); close(CHILD_WRITE);
 
-	std::string error_log = m_name + ".error";
+	fs::path pathname(m_name);
+	std::string basename = pathname.filename().native();
+	std::string error_log = basename + ids + ".error";
 	if (verbose)
 	    std::cerr << "Redirecting standard error to file " << error_log << std::endl;
-	mode_t mode = S_IRUSR | S_IRGRP | S_IROTH;
-	int fd = open(error_log.c_str(), O_WRONLY | O_CREAT, mode);
+	mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+	int fd = open(error_log.c_str(), O_WRONLY | O_TRUNC | O_CREAT, mode);
 	dup2(fd,2); close(fd);
 
 	spt.execvp(exec_args);

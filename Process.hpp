@@ -35,7 +35,7 @@ public:
     typedef ProcessStruct::arg_type arg_type;
 
     Process(const ProcessStruct& pstruct);
-    Process(const arg_type&, bool verbose=false);
+    Process(const arg_type&, bool verbose=false, const std::string& ids="");
     //Process(const arg_type&);
     Process(const Process &p);
     Process& operator=(const Process &p);

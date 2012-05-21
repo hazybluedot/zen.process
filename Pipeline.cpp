@@ -151,7 +151,7 @@ void Pipeline::execute(const arg_type& argsv, const std::string& ids)
 		     std::string error_log = basename + ids + ".error";
 		     if (verbose)
 			 std::cerr << "Redirecting standard error to file " << error_log << std::endl;
-		     int efd = open(error_log.c_str(), O_WRONLY | O_CREAT);
+		     int efd = open(error_log.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		     dup2(efd,2); close(efd);
 
 		     if (verbose)
