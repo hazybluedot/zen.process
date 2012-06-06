@@ -9,6 +9,8 @@
 #include "utils.hpp"
 #include "Process.hpp"
 #include "selfpipetrick.hpp"
+#include <iostream>
+#include <sstream>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -190,7 +192,13 @@ std::string Process::read()
     char* mystring = NULL;
     size_t num_bytes;
 
-    getline(&mystring, &num_bytes, m_pin);
+    if ( getline(&mystring, &num_bytes, m_pin) < 0 )
+    {
+	std::string error_string("getline: failed to read a line. ferror=");
+	std::stringstream ss;
+	ss << error_string << ferror(m_pin);
+	throw std::runtime_error(ss.str());
+    }
     line = mystring;
     free(mystring);
     return line;
