@@ -5,12 +5,13 @@
 #include <sstream>
 #include <memory>
 #include "Process.hpp"
+#include "Pipeline.hpp"
 
 int main(int argc, char *argv[])
 {
     using namespace std;
     //Process* myproc;
-    Process::arg_type args;
+    ProcessStruct::arg_type args;
 
     for(int nn=1; nn<argc; ++nn)
     {

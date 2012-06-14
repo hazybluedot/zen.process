@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     using namespace std;
 
     bool verbose=true;
-    Process::arg_type args;
+    ProcessStruct::arg_type args;
     int N = atoi(argv[1]);
     for(int nn=2; nn<argc; ++nn)
     {

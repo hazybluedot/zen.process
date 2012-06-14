@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "Process.hpp"
+#include "Pipeline.hpp"
 
 class ProcessList
 {

@@ -26,6 +26,16 @@ Pipeline::Pipeline(const arg_type& argsv, const bool verbose, const std::string&
     m_pread((FILE*)NULL),
     m_pwrite((FILE*)NULL)
 {
+    argv_type margs(1,argsv);
+    execute(margs, ids);
+};
+
+Pipeline::Pipeline(const argv_type& argsv, const bool verbose, const std::string& ids) :
+    verbose(verbose),
+    m_fd {-1,-1},
+    m_pread((FILE*)NULL),
+    m_pwrite((FILE*)NULL)
+{
     execute(argsv, ids);
 };
 
@@ -76,7 +86,7 @@ Pipeline::~Pipeline()
     fclose(m_pread);
 };
 
-void Pipeline::execute(const arg_type& argsv, const std::string& ids)
+void Pipeline::execute(const argv_type& argsv, const std::string& ids)
 {
     pipe(m_fd);
  
@@ -89,7 +99,7 @@ void Pipeline::execute(const arg_type& argsv, const std::string& ids)
     my_fds.push_back(m_fd[1]);
     std::vector<int>::iterator pend = my_fds.end();
 
-    typedef arg_type::const_iterator iter_argsv;
+    typedef argv_type::const_iterator iter_argsv;
     std::reverse_iterator<iter_argsv> rev_end (argsv.begin());
     std::reverse_iterator<iter_argsv> rev_begin (argsv.end());
     
