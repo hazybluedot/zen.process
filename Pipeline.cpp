@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 #include <sysexits.h>
 #include <string.h>
 
