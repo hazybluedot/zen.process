@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <sysexits.h>
 #include <string.h>
 
@@ -71,8 +72,15 @@ Pipeline::~Pipeline()
 		     }
 		 if (verbose)
 		 {
-		     std::cerr << " done with status " << status;
+		     std::cerr << " done, ";
+		     if (WIFEXITED(status)) {
+		       std::cerr << "Child exited with RC=" << WEXITSTATUS(status);
+		     }
 		 }
+		 if (WIFSIGNALED(status)) {
+		   std::cerr << "Child exited via signal " << WTERMSIG(status) << " (" << strsignal(WTERMSIG(status)) << ")";
+		 }
+		 std::cerr << "\n";
 	     }
 	);
 
