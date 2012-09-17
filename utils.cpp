@@ -12,11 +12,9 @@ vecvecstr make_log_args(const vecstr& args, std::string logname)
     vecvecstr argsv;
     std::string loginname = logname;
 
-    /*
     loginname.append(".in");
     vecstr logargsin = {"tee", loginname};
     argsv.emplace_back(logargsin);
-    */
 
     argsv.push_back(args);
 
