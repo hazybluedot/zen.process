@@ -5,21 +5,44 @@
 #include <algorithm>
 #include <iterator>
 #include "utils.hpp"
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 
-vecvecstr make_log_args(const vecstr& args, std::string logname)
+std::string basename(const vecstr& args)
 {
+    fs::path pathname(args[0]);
+    std::string basename = pathname.filename().native();
+    return basename;
+}
 
-    vecvecstr argsv;
-    std::string loginname = logname;
 
-    loginname.append(".in");
-    vecstr logargsin = {"tee", loginname};
-    argsv.emplace_back(logargsin);
+vecvecstr add_output_logger(const vecvecstr& pipeline, const std::string& lname)
+{
+    std::string logname = lname;
+    if (logname == "")
+	logname = pipeline.back()[0].c_str();
+    logname.append(".stdout");
+    std::cerr << "Adding output logger " << logname << std::endl;
 
-    argsv.push_back(args);
-
+    vecvecstr argsv = pipeline;
     vecstr logargs = {"tee", "-a", logname};
     argsv.emplace_back(logargs);
+    return argsv;
+}
+
+vecvecstr add_input_logger(const vecvecstr& pipeline, const std::string& lname)
+{
+    std::string logname = lname;
+    if (logname == "")
+	logname = pipeline.front()[0].c_str();
+    logname.append(".stdin");
+
+    std::cerr << "Adding input logger " << logname << std::endl;
+    vecvecstr argsv;
+    vecstr logargsin = {"tee", "-a", logname};
+    argsv.emplace_back(logargsin);
+    std::copy(pipeline.begin(),pipeline.end(), std::back_inserter<vecvecstr>(argsv));
+//argsv.emplace_back(pipeline);
     return argsv;
 }
 

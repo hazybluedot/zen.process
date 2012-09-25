@@ -1,7 +1,7 @@
 CXX 		:= g++
 CXX_FLAGS 	:= -Wall -g -std=c++11
 #CXX_FLAGS := -std=c++0x -O3 -DNDEBUG -march=core2
-LIBS		:= -lboost_program_options -lboost_system -lboost_filesystem
+LIBS		:= -lboost_program_options -lboost_system -lboost_filesystem -ljsoncpp
 SRCS			:= Pipeline.cpp utils.cpp selfpipetrick.cpp
 EXE_SRCS		:= process_list.cc
 OBJS 			:= $(SRCS:.cpp=.o)

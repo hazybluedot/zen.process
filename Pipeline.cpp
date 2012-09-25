@@ -22,23 +22,23 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-Pipeline::Pipeline(const arg_type& argsv, const bool verbose, const std::string& ids) :
+Pipeline::Pipeline(const arg_type& argsv, const bool verbose, const opts_type& options) :
     verbose(verbose),
     m_fd {-1,-1},
     m_pread((FILE*)NULL),
     m_pwrite((FILE*)NULL)
 {
     argv_type margs(1,argsv);
-    execute(margs, ids);
+    execute(margs, options);
 };
 
-Pipeline::Pipeline(const argv_type& argsv, const bool verbose, const std::string& ids) :
+Pipeline::Pipeline(const argv_type& argsv, const bool verbose, const opts_type& options) :
     verbose(verbose),
     m_fd {-1,-1},
     m_pread((FILE*)NULL),
     m_pwrite((FILE*)NULL)
 {
-    execute(argsv, ids);
+    execute(argsv, options);
 };
 
 Pipeline::~Pipeline()
@@ -95,8 +95,39 @@ Pipeline::~Pipeline()
     fclose(m_pread);
 };
 
-void Pipeline::execute(const argv_type& argsv, const std::string& ids)
+void Pipeline::execute(const argv_type& argsv_, const opts_type& options)
 {
+    argv_type argsv = argsv_;
+    std::string ids = "";
+    std::map<std::string,std::string>::const_iterator oit;
+    oit = options.find("id");
+    if (oit != options.end())
+    {
+	ids = oit->second;
+    }
+
+    oit = options.find("stdout");
+    if (oit != options.end())
+    {
+	std::string logname = oit->second;
+	if (logname == "")
+	{
+	    logname = basename(argsv.back()) + ids;
+	}
+	argsv = add_output_logger(argsv, logname);
+    }
+
+    oit = options.find("stdin");
+    if (oit != options.end())
+    {
+	std::string logname = oit->second;
+	if (logname == "")
+	{
+	    logname = basename(argsv.front()) + ids;
+	}
+	argsv = add_input_logger(argsv, logname);
+    }
+
     pipe(m_fd);
  
     std::vector<value_type>::const_iterator begin = m_processes.begin();
@@ -252,7 +283,7 @@ void Pipeline::write(const std::string& line)
     }
 };
 
-std::string Pipeline::read()
+std::string Pipeline::read() const
 {
     std::string line;
     char* mystring = NULL;
@@ -263,3 +294,21 @@ std::string Pipeline::read()
     free(mystring);
     return line;
 };
+
+void Pipeline::write(const Json::Value& jvalue)
+{
+    std::stringstream oss;
+    Json::FastWriter jwriter;
+    oss << jwriter.write(jvalue);
+    this->write(oss.str());
+};
+
+Json::Value Pipeline::read_json() const
+{
+    Json::Reader jreader;
+    Json::Value input;
+
+    std::string line = this->read();
+    jreader.parse(line, input);
+    return input;
+}

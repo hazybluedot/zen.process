@@ -8,7 +8,9 @@ typedef std::vector<std::string> vecstr;
 typedef std::vector<vecstr> vecvecstr;
 typedef std::vector<const char*> vecchar;
 
-vecvecstr make_log_args(const vecstr& args, std::string name);
+vecvecstr add_output_logger(const vecvecstr& pipeline, const std::string& logname);
+vecvecstr add_input_logger(const vecvecstr& pipeline, const std::string& logname);
+std::string basename(const vecstr& args);
 
 const char *convert(const std::string & s);
 std::vector<const char*> convert_vs2vc(const std::vector<std::string>& vs);
