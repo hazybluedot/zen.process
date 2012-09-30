@@ -1,15 +1,38 @@
 CXX 		:= g++
-CXX_FLAGS 	:= -Wall -g -std=c++11
-#CXX_FLAGS := -std=c++0x -O3 -DNDEBUG -march=core2
+ifndef CXX_FLAGS
+   CXX_FLAGS 	:= -Wall -ggdb -std=c++11
+endif
+CXX_FLAGS := ${CXX_FLAGS} -fPIC
 LIBS		:= -lboost_program_options -lboost_system -lboost_filesystem -ljsoncpp
 SRCS			:= Pipeline.cpp utils.cpp selfpipetrick.cpp
 EXE_SRCS		:= process_list.cc
 OBJS 			:= $(SRCS:.cpp=.o)
 #INCLUDE_PATHS := -I ~/workspace/Debug/usr/include
-#VPATH := ../oldmodels
 BINDIR := ../../bin/
+LIBDIR := ../../lib/
 
-all: process_test pipeline_test process_list
+define compile_rule
+        libtool --mode=compile \
+        $(CC) $(CFLAGS) $(CPPFLAGS) -c $<
+endef
+define link_rule
+        libtool --mode=link \
+        $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+endef
+
+LIBS = libprocess.la
+libprocess_OBJS = Pipeline.lo utils.lo selfpipetrick.lo
+
+all: libprocess process_test pipeline_test process_list
+
+#%.lo: %.cpp
+#	$(call compile_rule)
+
+libprocess.so: ${OBJS}
+	$(CXX) $(CXX_FLAGS) --shared -o ${LIBDIR}$@ ${OBJS}
+
+#libprocess.la: $(libmystuff_OBJS)
+#	$(call link_rule)
 
 process_list: process_list.o ${OBJS}
 	$(CXX) $(CXX_FLAGS) -o ${BINDIR}$@ ${OBJS} process_list.o ${LIBS}
@@ -19,6 +42,16 @@ process_test: process_test.o ${OBJS}
 
 pipeline_test: pipeline_test.o Pipeline.o utils.o selfpipetrick.o
 	${CXX} $(CXX_FLAGS) -o ${BINDIR}$@ Pipeline.o utils.o pipeline_test.o selfpipetrick.o ${LIBS}
+
+#install/%.la: %.la
+#	libtool --mode=install \
+#	install -c $(notdir $@) $(LIBDIR)/$(notdir $@)
+#install: $(addprefix install/,$(LIBS))
+#	libtool --mode=finish $(libdir)install/%.la: %.la
+#	libtool --mode=install \
+#	install -c $(notdir $@) $(libdir)/$(notdir $@)
+#install: $(addprefix install/,$(LIBS))
+#	libtool --mode=finish $(LIBDIR)
 
 include ../make_depend.mk
 
