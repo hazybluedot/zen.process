@@ -4,9 +4,9 @@ ifndef CXX_FLAGS
 endif
 CXX_FLAGS := ${CXX_FLAGS} -fPIC
 LIBS		:= -lboost_program_options -lboost_system -lboost_filesystem -ljsoncpp
-SRCS			:= Pipeline.cpp utils.cpp selfpipetrick.cpp
-EXE_SRCS		:= process_list.cc
-OBJS 			:= $(SRCS:.cpp=.o)
+SRCS		:= Pipeline.cpp utils.cpp selfpipetrick.cpp
+EXE_SRCS	:= process_list.cc
+OBJS 		:= $(SRCS:.cpp=.o)
 #INCLUDE_PATHS := -I ~/workspace/Debug/usr/include
 BINDIR := ../../bin/
 LIBDIR := ../../lib/
@@ -23,12 +23,12 @@ endef
 LIBS = libprocess.la
 libprocess_OBJS = Pipeline.lo utils.lo selfpipetrick.lo
 
-all: libprocess process_test pipeline_test process_list
+all: libzen_process.so process_test pipeline_test process_list
 
 #%.lo: %.cpp
 #	$(call compile_rule)
 
-libprocess.so: ${OBJS}
+libzen_process.so: ${OBJS}
 	$(CXX) $(CXX_FLAGS) --shared -o ${LIBDIR}$@ ${OBJS}
 
 #libprocess.la: $(libmystuff_OBJS)

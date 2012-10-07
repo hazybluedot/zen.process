@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	args.push_back(argv[nn]);
     }
 
-    Pipeline::arg_type argsv;
+    Pipeline::argv_type argsv;
 
     std::vector<std::string> inargs;
     inargs.push_back( "tee");

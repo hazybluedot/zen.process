@@ -199,10 +199,14 @@ void Pipeline::execute(const argv_type& argsv_, const opts_type& options)
 		     fs::path pathname(args[0]);
 		     std::string basename = pathname.filename().native();
 		     std::string error_log = basename + ids + ".error";
+		     std::string log_log = basename + ids + ".log3";
 		     if (verbose)
 			 std::cerr << "Redirecting standard error to file " << error_log << std::endl;
 		     int efd = open(error_log.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		     dup2(efd,2); close(efd);
+
+		     int lfd = open(log_log.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		     dup2(lfd,3); close(lfd);
 
 		     if (verbose)
 		     {
