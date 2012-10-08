@@ -20,8 +20,9 @@ define link_rule
         $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 endef
 
-LIBS = libprocess.la
+LIBS = libzen_process.so
 libprocess_OBJS = Pipeline.lo utils.lo selfpipetrick.lo
+LIB_DIR = -L~/workspace/zen/lib
 
 all: libzen_process.so process_test pipeline_test process_list
 
@@ -35,13 +36,13 @@ libzen_process.so: ${OBJS}
 #	$(call link_rule)
 
 process_list: process_list.o ${OBJS}
-	$(CXX) $(CXX_FLAGS) -o ${BINDIR}$@ ${OBJS} process_list.o ${LIBS}
+	$(CXX) $(CXX_FLAGS) -o ${BINDIR}$@ ${OBJS} process_list.o ${LIB_DIR} ${LIBS}
 
 process_test: process_test.o ${OBJS}
-	${CXX} $(CXX_FLAGS) -o ${BINDIR}$@ ${OBJS} process_test.o ${LIBS}
+	${CXX} $(CXX_FLAGS) -o ${BINDIR}$@ ${OBJS} process_test.o ${LIB_DIR} ${LIBS}
 
 pipeline_test: pipeline_test.o Pipeline.o utils.o selfpipetrick.o
-	${CXX} $(CXX_FLAGS) -o ${BINDIR}$@ Pipeline.o utils.o pipeline_test.o selfpipetrick.o ${LIBS}
+	${CXX} $(CXX_FLAGS) -o ${BINDIR}$@ Pipeline.o utils.o pipeline_test.o selfpipetrick.o ${LIB_DIR} ${LIBS}
 
 #install/%.la: %.la
 #	libtool --mode=install \
