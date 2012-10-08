@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     {
 	cerr << "Creating Process" << endl;
 	try {
-	    Process myproc = Process(args,verbose);
+	    Process myproc(args,verbose);
 	    while (getline(cin,line))
 	    {
 		//stringstream ss(line, stringstream::out);
