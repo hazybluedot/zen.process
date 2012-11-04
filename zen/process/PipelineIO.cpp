@@ -26,12 +26,12 @@ namespace zen {
       m_pipeline->write(msg);
     };
     
-    std::string PipelineIO::read()
+    std::string PipelineIO::readline()
     {
-      return m_pipeline->read();
+      return m_pipeline->readline();
     };
-    void stop();
-    void cont();
+    void stop(); //TODO: implement
+    void cont(); //TODO: implement
     std::shared_ptr<Pipeline> m_pipeline;
   }
 }

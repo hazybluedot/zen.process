@@ -33,7 +33,7 @@
 #include <iterator>
 
 #include "utils.hpp"
-#include "selfpipetrick.hpp"
+#include "SelfPipeTrickExec.hpp"
 #include "Pipeline.hpp"
 #include "Pipe.hpp"
 
@@ -125,6 +125,12 @@ namespace zen {
       }
     };
 
+/**
+ * Spawn a new child process and attach its stdin and stdout to pipes.
+ * @param pargs = command and arguments to execute child process, e.g. {"/usr/bin/ls", "-a", "-l"}}.
+ * @param in = input pipe for new process, will be attached to stdin.
+ * @param out = output pipe for new process, will be attached to stdout.
+ */
     Pipeline::value_type Pipeline::exec(const argo_type& pargs, Pipe &in, Pipe &out)
     {
       const args_type args = pargs.first;
@@ -142,7 +148,7 @@ namespace zen {
       pid_t pid;
       std::string myname = args[0];
   
-      SelfPipeTrick spt;
+      SelfPipeTrickExec spt; //Self-pipe trick to report execvp failure to parent
       if ( (pid = fork()) < 0 )
 	{
 	  std::string what = myname + ": fork failed";
@@ -175,7 +181,13 @@ namespace zen {
 	  log_stream(bname, "stderr", 2);
 	  log_stream(bname, "stdlog", 3);
 
-	  spt.execvp(args);
+	  std::vector<const char*> eav = convert_vs2vc(args);
+	  if(-1 == execvp(eav[0], const_cast<char**>(&eav[0])))
+	  {
+	      spt.writeExecStatus(errno);
+	      _exit(0);
+	  }
+
 	} 
       else
 	{
@@ -183,15 +195,16 @@ namespace zen {
 	  in.closeRead();
 	  out.closeWrite();
 	  
-	  try {
-	    spt.parent(args);
-	  } catch (std::runtime_error e) {
-	    std::string what = myname + ": " + e.what(); 
-	    return value_type(-pid, what);
+	  int exec_status(spt.checkExecStatus());
+	  if(0 != exec_status) { //exec failed
+	      std::stringstream ss;
+	      ss << myname << ": " << strerror(exec_status) << std::endl;
+	      return value_type(-pid, ss.str());
+	  } else {
+	      return value_type(pid,myname);		     
 	  }
 	  if (verbose)
 	    std::cerr << "Adding " << args[0] << "[" << pid << "] to parent's [" << getpid() << "] process list" << std::endl;
-	  return value_type(pid,myname);		     
 	}
     };
 
@@ -210,6 +223,14 @@ namespace zen {
     };
 
     std::string Pipeline::read() const
+    {
+        char buffer[1024];
+	size_t result = fread(buffer,sizeof(char),1024, m_pread); //TODO: allow user to specify buffer size, do something if there is still data left in buffer after read.
+	std::string read_string(buffer);
+	return read_string;
+    }
+
+    std::string Pipeline::readline() const
     {
       std::string line;
       char* mystring = NULL;

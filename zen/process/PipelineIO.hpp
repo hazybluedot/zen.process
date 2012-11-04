@@ -14,7 +14,7 @@ namespace zen {
       PipelineIO(std::shared_ptr<Pipeline> &pl) : m_pipeline(pl) {}
       virtual ~PipelineIO();
       void write(const std::string&);
-      std::string read();
+      std::string readline();
       void stop();
       void cont();
     private:

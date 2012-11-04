@@ -30,6 +30,7 @@ namespace zen {
   
       void write(const std::string& line);
       std::string read() const;
+      std::string readline() const;
   
       void stop();
       void cont();

@@ -39,11 +39,11 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << "[Pipeline] wrote: " << poke << std::endl;
 	pipeline.write(poke);
 	pipeline2.write(poke);
-	std::string response(pipeline.read());
+	std::string response(pipeline.readline());
 	std::cout << "[Pipeline] read: " << response;
 	std::cout << std::endl;
 
-	std::string response2(pipeline2.read());
+	std::string response2(pipeline2.readline());
 	std::cout << "[Pipeline2] read: " << response2;
 	std::cout << std::endl;
 

@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
 	std::cout << std::endl << "[Pipeline] wrote: " << poke << std::endl;
 	pipeline.write(poke);
-	std::string response(pipeline.read());
+	std::string response(pipeline.readline());
 	std::cout << "[Pipeline] read: " << response;
 	std::cout << std::endl;
 
