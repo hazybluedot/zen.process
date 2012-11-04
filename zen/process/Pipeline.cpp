@@ -1,8 +1,25 @@
+/* Copyright (C) 2012 Darren Maczka <darmacz@gmail.com>
+   
+   This file is part of zen.process.
+   
+   zen.process is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
+   zen.process is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with zen.process.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
-#include <sys/wait.h>
 #include <sysexits.h>
 #include <string.h>
 
@@ -19,9 +36,6 @@
 #include "selfpipetrick.hpp"
 #include "Pipeline.hpp"
 #include "Pipe.hpp"
-
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
 
 namespace zen {
   namespace process {
@@ -58,24 +72,7 @@ namespace zen {
 		    {
 		      kill(p.first, SIGCONT);
 		      kill(p.first, SIGTERM);
-		      int status(0);
-		      pid_t pid(-1);
-		      while(-1 == (pid = waitpid(p.first, &status, 0)) && EINTR == errno);
-		      if(pid == p.first) {
-			std::cerr << "child process " << pid;
-			if (WIFEXITED(status)) {
-			  std::cerr << " exited with return code " << WEXITSTATUS(status);
-			} else if (WIFSIGNALED(status)) {
-			  std::cerr << " exited via signal " << WTERMSIG(status) << " (" << strsignal(WTERMSIG(status)) << ")";
-			} else {
-			  std::cerr << " exited with status " << status;
-			}
-			std::cerr << std::endl;
-		      }
-		      else
-			std::cerr << "child process " << p.first 
-				  << " had already exited" << std::endl;
-		  
+		      get_status(p.first);
 		    } );
     };
 
@@ -103,6 +100,8 @@ namespace zen {
 	  }
 	std::cerr << "}/fd\n";
       }
+
+      validate();
 
       int writefd = dup(pipes[0].writefd());
       int readfd = dup(pipes[numproc].readfd());
@@ -157,15 +156,15 @@ namespace zen {
 	  dup2(in.readfd(),0); 
 	  dup2(out.writefd(),1);
 
-	  fs::path pathname(args[0]);
-	  std::string basename = pathname.filename().native() + ids;
+	  std::string bname = basename(args);
+	  bname += ids;
       
-	  auto log_stream = [&](std::string basename, std::string key, int fd) 
+	  auto log_stream = [&](std::string bname, std::string key, int fd) 
 	    {
 	      std::map<std::string,std::string>::const_iterator oit;
-	      oit = opts.find("stderr");
+	      oit = opts.find(key);
 	      if (oit != opts.end()) {
-		std::string fname = basename + "." + key;
+		std::string fname = bname + "." + key;
 		if (verbose)
 		  std::cerr << "Redirecting fd" << fd << " to file " << fname << std::endl;
 		int sfd = open(fname.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -173,8 +172,8 @@ namespace zen {
 	      }
 	    };
 
-	  log_stream(basename, "stderr", 2);
-	  log_stream(basename, "stdlog", 3);
+	  log_stream(bname, "stderr", 2);
+	  log_stream(bname, "stdlog", 3);
 
 	  spt.execvp(args);
 	} 
@@ -241,5 +240,17 @@ namespace zen {
       return input;
     }
 #endif
+    void Pipeline::validate()
+    {
+      std::for_each(m_processes.begin(), m_processes.end(), [&](value_type p)
+		    {
+		      if (p.first > 0) {
+			  std::cerr << p.second << ": good\n";
+		      } else {
+			std::cerr << p.second << ": ";
+			get_status(-p.first);
+		      }
+		    } );
+    }
   }
 }

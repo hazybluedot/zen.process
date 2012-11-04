@@ -45,6 +45,7 @@ namespace zen {
 
       void spawn(const argov_type&);
       value_type exec(const argo_type&, Pipe&, Pipe&);
+      void validate();
     };
 
   }

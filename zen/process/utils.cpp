@@ -1,3 +1,21 @@
+/* Copyright (C) 2012 Darren Maczka <darmacz@gmail.com>
+   
+   This file is part of zen.process.
+   
+   zen.process is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
+   zen.process is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with zen.process.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <iostream>
 
 #include <string.h>
@@ -5,6 +23,8 @@
 #include <algorithm>
 #include <iterator>
 #include "utils.hpp"
+#include <sys/wait.h>
+
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -93,9 +113,9 @@ namespace zen {
 			{
 			  ids = oit->second;
 			}
-
-		      inlogger = get_log_string(args[0], "stdin", options);
-		      outlogger = get_log_string(args[0], "stdout", options);
+		      std::string bname = basename(args) + ids;
+		      inlogger = get_log_string(bname, "stdin", options);
+		      outlogger = get_log_string(bname, "stdout", options);
 		  
 		      if (inlogger.size() > 0)
 			argsv.push_back(std::make_pair(inlogger, opts_type()));
@@ -107,6 +127,26 @@ namespace zen {
 		  
 		    } );
       return argsv;
+    }
+    
+    void get_status(pid_t pid_) {
+      int status(0);
+      pid_t pid(-1);
+      while(-1 == (pid = waitpid(pid_, &status, 0)) && EINTR == errno);
+      if(pid == pid_) {
+	std::cerr << "child process " << pid;
+	if (WIFEXITED(status)) {
+	  std::cerr << " exited with return code " << WEXITSTATUS(status);
+	} else if (WIFSIGNALED(status)) {
+	  std::cerr << " exited via signal " << WTERMSIG(status) << " (" << strsignal(WTERMSIG(status)) << ")";
+	} else {
+	  std::cerr << " exited with status " << status;
+	}
+	std::cerr << std::endl;
+      }
+      else
+	std::cerr << "child process " << pid_ 
+		  << " had already exited" << std::endl;
     }
   }
 }

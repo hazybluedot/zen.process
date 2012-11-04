@@ -10,6 +10,7 @@ namespace zen {
     class Pipeline;
 
     class ProcessManager {
+      typedef std::map<std::string, int> name_map;
     public:
       typedef PipelineIO value_type;
       ProcessManager(bool verbose=false);
@@ -19,7 +20,7 @@ namespace zen {
     private:
       bool verbose;
       std::vector<std::shared_ptr<Pipeline> > m_pipelines;
-      std::map<std::string, int> m_names;
+      name_map m_names;
     };
   }
 }

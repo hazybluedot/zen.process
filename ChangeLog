@@ -1,0 +1,5 @@
+2012-11-02 Darren Maczka <darmacz@gmail.com>
+
+	Switched to gnu autotools build
+	Added ProcessManager and test-procman
+	No SIGCHLD handler yet

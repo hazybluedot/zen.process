@@ -19,6 +19,8 @@ namespace zen {
 
     argov_type process_options(const argv_type&, const opts_type&);
 
+    void get_status(pid_t);
+
     std::ostream& operator<<(std::ostream& os, const vecstr& args);
     std::ostream& operator<<(std::ostream& os, const vecchar& args);
     std::ostream& operator<<(std::ostream& os, const argv_type& argsv);
