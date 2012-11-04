@@ -24,6 +24,9 @@ namespace zen {
       Pipeline(const args_type& argsv, const bool verbose = false, const opts_type& options = opts_type());
       Pipeline(const argv_type& argsv, const bool verbose = false, const opts_type& options = opts_type());
       ~Pipeline();
+      // non-copyable
+      Pipeline(const Pipeline&) = delete;
+      Pipeline& operator=(const Pipeline&) = delete;
   
       void write(const std::string& line);
       std::string read() const;
