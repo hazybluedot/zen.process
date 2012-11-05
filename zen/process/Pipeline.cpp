@@ -266,6 +266,7 @@ namespace zen {
       std::for_each(m_processes.begin(), m_processes.end(), [&](value_type p)
 		    {
 		      if (p.first > 0) {
+			if (verbose)
 			  std::cerr << p.second << ": good\n";
 		      } else {
 			std::cerr << p.second << ": ";

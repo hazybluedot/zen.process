@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	zp::argv_type cv;
 	cv.push_back({"./dummy", "10"});
 	cv.push_back({"./dummy", "15"});
-	zp::ProcessManager pm(true);
+	zp::ProcessManager pm(false);
 	std::map<std::string, std::string> opts;
 	opts["stdin"] = ""; //Seting these keys to the empty string tells Pipeline to use the first process name + id as the filename followed by .key
 	opts["stdout"] = ""; // key is the key used
