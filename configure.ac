@@ -20,15 +20,16 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_ARG_WITH([json], AS_HELP_STRING([--without-json], [Build without json library (default: test)]))
-AC_ARG_WITH([boost-filesystem], AS_HELP_STRING([--without-boost-filesystem], [Build without boost filesystem library (default: test)]))
+#AC_ARG_WITH([boost-filesystem], AS_HELP_STRING([--without-boost-filesystem], [Build without boost filesystem library (default: test)]))
 
 AS_IF([test "x$with_json" != "xno"], [
   PKG_CHECK_MODULES([JSON], [json >= 0.9])
 ])
 
-BOOST_REQUIRE([1.50])
-BOOST_SYSTEM
-BOOST_FILESYSTEM
+AC_LANG_PUSH(C++)
+AX_BOOST_BASE([1.50])
+AX_BOOST_SYSTEM
+AX_BOOST_FILESYSTEM
 
 # Checks for header files.
 AC_CHECK_HEADERS([unistd.h fcntl.h])
@@ -44,10 +45,8 @@ AC_CHECK_FUNCS([dup2 pipe2])
 AC_FUNC_FORK
 
 # global C++ flags, notably we want to use the c++11 standard
-#AC_SUBST([AM_CXXFLAGS], [-Wall -g -std=c++11])
+AX_CXX_COMPILE_STDCXX_11(noext)
 
-AX_CHECK_COMPILE_FLAG(-std=c++11, [
-                        CXXFLAGS="$CXXFLAGS -std=c++11"])
 # Generate output
 AC_CONFIG_FILES([Makefile
                 m4/Makefile
