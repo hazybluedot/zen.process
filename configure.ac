@@ -26,6 +26,7 @@ AS_IF([test "x$with_json" != "xno"], [
   PKG_CHECK_MODULES([JSON], [json >= 0.9])
 ])
 
+# Need to push C++ for AX_BOOST macros to work properly
 AC_LANG_PUSH(C++)
 AX_BOOST_BASE([1.50])
 AX_BOOST_SYSTEM
