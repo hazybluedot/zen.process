@@ -4,7 +4,6 @@
 AC_PREREQ([2.69])
 AC_INIT([zen], [0.0.1], [darmacz@gmail.com], [zen])
 AC_CANONICAL_SYSTEM
-#AC_CONFIG_AUX_DIR([m4])
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -20,7 +19,6 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_ARG_WITH([json], AS_HELP_STRING([--without-json], [Build without json library (default: test)]))
-#AC_ARG_WITH([boost-filesystem], AS_HELP_STRING([--without-boost-filesystem], [Build without boost filesystem library (default: test)]))
 
 AS_IF([test "x$with_json" != "xno"], [
   PKG_CHECK_MODULES([JSON], [json >= 0.9])
@@ -28,9 +26,6 @@ AS_IF([test "x$with_json" != "xno"], [
 
 # Need to push C++ for AX_BOOST macros to work properly
 AC_LANG_PUSH(C++)
-AX_BOOST_BASE([1.50])
-AX_BOOST_SYSTEM
-AX_BOOST_FILESYSTEM
 
 # Checks for header files.
 AC_CHECK_HEADERS([unistd.h fcntl.h])
