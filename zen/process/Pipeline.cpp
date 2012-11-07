@@ -162,7 +162,7 @@ namespace zen {
 	  dup2(in.readfd(),0); 
 	  dup2(out.writefd(),1);
 
-	  std::string bname = basename(args);
+	  std::string bname = basename(args[0].c_str());
 	  bname += ids;
       
 	  auto log_stream = [&](std::string bname, std::string key, int fd) 

@@ -18,6 +18,7 @@
 
 #include "ProcessManager.hpp"
 #include <algorithm>
+#include <string.h>
 
 #include "types.hpp"
 #include "utils.hpp"
@@ -46,7 +47,7 @@ namespace zen {
     PipelineIO ProcessManager::spawn(const argv_type &args, const opts_type &options) 
     {
       opts_type opts = options;
-      std::string name = basename(args[0]);
+      std::string name = basename(args[0][0].c_str());
       name_map::iterator it = m_names.find(name);
       
       if (it != m_names.end()) {
@@ -60,7 +61,7 @@ namespace zen {
       std::shared_ptr<Pipeline> pipeline = std::shared_ptr<Pipeline>(new Pipeline(args, verbose, opts));
       m_pipelines.push_back(pipeline);
       if (verbose)
-	std::cerr << "Adding pipeline " << basename(args[0]) << opts["id"] << "\n";
+	std::cerr << "Adding pipeline " << name << opts["id"] << "\n";
       return PipelineIO(pipeline);
     };
   }

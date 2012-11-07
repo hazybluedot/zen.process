@@ -25,18 +25,8 @@
 #include "utils.hpp"
 #include <sys/wait.h>
 
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-
 namespace zen {
   namespace process {
-    std::string basename(const vecstr& args)
-    {
-      fs::path pathname(args[0]);
-      std::string basename = pathname.filename().native();
-      return basename;
-    }
-
     std::vector<const char*> convert_vs2vc(const std::vector<std::string>& vs)
     {
       std::vector<const char*> vc;
@@ -113,7 +103,8 @@ namespace zen {
 			{
 			  ids = oit->second;
 			}
-		      std::string bname = basename(args) + ids;
+		      
+		      std::string bname = basename(args[0].c_str()) + ids;
 		      inlogger = get_log_string(bname, "stdin", options);
 		      outlogger = get_log_string(bname, "stdout", options);
 		  

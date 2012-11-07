@@ -12,8 +12,6 @@ namespace zen {
     typedef std::vector<const char*> vecchar;
     typedef std::vector<std::string> vecstr;
     
-    std::string basename(const vecstr& args);
-
     const char *convert(const std::string & s);
     std::vector<const char*> convert_vs2vc(const std::vector<std::string>& vs);
 
