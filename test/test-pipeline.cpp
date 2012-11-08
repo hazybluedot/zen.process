@@ -19,17 +19,36 @@
 #include <iostream>
 #include "zen/process/Pipeline.hpp"
 
+#define HAVE_JSONCPP
+
+#ifdef HAVE_JSONCPP
+#include <jsoncpp/json.h>
+#endif
+
 int main(int argc, char* argv[])
 {
+  #ifdef HAVE_JSONCPP
+  std::cout << "Testing with jsoncpp" << std::endl;
+  Json::Value poke;
+  #else
+  std::string poke;
+  #endif
+
 	namespace zp = zen::process;
 	zp::argv_type cv;
 	cv.push_back({"./dummy", "10"});
 	cv.push_back({"./dummy", "15"});
 	zp::Pipeline pipeline(cv,true);
 
-	std::string poke("this is from pipeline write\n");
-
+	std::string msg("this is from pipeline write\n");
+#ifdef HAVE_JSONCPP
+	poke["msg"] = msg;
+	Json::FastWriter writer;
+	std::cout << std::endl << "[Pipeline] wrote: " << writer.write(poke) << std::endl;
+#else
+	poke = msg;
 	std::cout << std::endl << "[Pipeline] wrote: " << poke << std::endl;
+#endif
 	pipeline.write(poke);
 	std::string response(pipeline.readline());
 	std::cout << "[Pipeline] read: " << response;

@@ -14,9 +14,7 @@ namespace zen {
     
     const char *convert(const std::string & s);
     std::vector<const char*> convert_vs2vc(const std::vector<std::string>& vs);
-
     argov_type process_options(const argv_type&, const opts_type&);
-
     void get_status(pid_t);
 
     std::ostream& operator<<(std::ostream& os, const vecstr& args);

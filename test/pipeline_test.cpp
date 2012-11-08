@@ -8,6 +8,10 @@
 #include "Pipeline.hpp"
 #include "utils.hpp"
 
+#ifdef HAVE_JSONCPP
+#include <jsoncpp/json.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     using namespace std;
@@ -40,6 +44,9 @@ int main(int argc, char *argv[])
     string line;
     string output;
     
+#ifdef HAVE_JSONCPP
+#endif
+
     std::cerr << argsv << std::endl;
     for(int nn=0; nn < 1; ++nn)
     {

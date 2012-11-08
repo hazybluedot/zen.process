@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([zen], [0.0.1], [darmacz@gmail.com], [zen])
+AC_INIT([zen], [0.9.0], [darmacz@gmail.com], [zen])
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
@@ -18,11 +18,25 @@ AC_PROG_CXX
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_ARG_WITH([json], AS_HELP_STRING([--without-json], [Build without json library (default: test)]))
+AC_ARG_WITH([jsoncpp], AS_HELP_STRING([--without-jsoncpp], [Build without jsoncpp library (default: test)]))
 
-AS_IF([test "x$with_json" != "xno"], [
-  PKG_CHECK_MODULES([JSON], [json >= 0.9])
+AS_IF([test "x$with_jsoncpp" != "xno"], [
+AC_DEFINE(HAVE_JSONCPP, [1], [test])
+AC_ARG_WITH([jsoncpp-include-path],
+  [AS_HELP_STRING([--with-jsoncpp-include-path],
+    [location of the JSONcpp headers, defaults to /usr/include/jsoncpp])],
+  [JSONCPP_CFLAGS="-I$withval"],
+  [JSONCPP_CFLAGS='-I/usr/include/jsoncpp'])
+AC_SUBST([JSONCPP_CFLAGS])
+
+AC_ARG_WITH([jsoncpp-lib-path],
+  [AS_HELP_STRING([--with-jsoncpp-lib-path], [location of the JSONcpp libraries])],
+  [JSONCPP_LIBS="-L$withval -ljsoncpp"],
+  [JSONCPP_LIBS='-ljsoncpp'])
+AC_SUBST([JSONCPP_LIBS])
 ])
+
+# Get JSONcpp library and include locations
 
 # Need to push C++ for AX_BOOST macros to work properly
 AC_LANG_PUSH(C++)

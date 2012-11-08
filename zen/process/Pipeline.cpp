@@ -16,26 +16,27 @@
    along with zen.process.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <sysexits.h>
-#include <string.h>
 
-#include <cstdlib>
-#include <cstdio>
-#include <sys/wait.h>
+
 #include <algorithm>
-#include <iostream>
-#include <sstream>
+#include <cstdio>
+#include <cstdlib>
+#include <errno.h>
+#include <fcntl.h>
 #include <functional>
+#include <iostream>
 #include <iterator>
+#include <signal.h>
+#include <sstream>
+#include <string.h>
+#include <sys/wait.h>
+#include <sysexits.h>
+#include <unistd.h>
 
-#include "utils.hpp"
-#include "SelfPipeTrickExec.hpp"
-#include "Pipeline.hpp"
 #include "Pipe.hpp"
+#include "Pipeline.hpp"
+#include "SelfPipeTrickExec.hpp"
+#include "utils.hpp"
 
 namespace zen {
   namespace process {
@@ -84,7 +85,7 @@ namespace zen {
       //Generate N+1 pipes for N child processes
       std::generate_n(std::back_inserter(pipes), numproc+1, []() { return Pipe(Pipe::CLOSE_ON_EXEC); });
 
-      for(int pp(0); pp < numproc; ++pp)
+      for(unsigned int pp(0); pp < numproc; ++pp)
 	m_processes.push_back(this->exec(args[pp], pipes[pp], pipes[pp+1]));
 
       if (verbose) {
@@ -242,7 +243,7 @@ namespace zen {
       return line;
     };
 
-#ifdef HAVE_JSON
+#ifdef HAVE_JSONCPP
     void Pipeline::write(const Json::Value& jvalue)
     {
       std::stringstream oss;
@@ -261,6 +262,7 @@ namespace zen {
       return input;
     }
 #endif
+
     void Pipeline::validate()
     {
       std::for_each(m_processes.begin(), m_processes.end(), [&](value_type p)

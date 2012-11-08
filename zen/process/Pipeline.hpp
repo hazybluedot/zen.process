@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 
-#ifdef HAVE_JSON
+#ifdef HAVE_JSONCPP
 #include <jsoncpp/json.h>
 #endif
 
@@ -35,7 +35,7 @@ namespace zen {
       void stop();
       void cont();
     
-#ifdef HAVE_JSON
+#ifdef HAVE_JSONCPP
       void write(const Json::Value& jvalue);
       Json::Value read_json() const;
 #endif
