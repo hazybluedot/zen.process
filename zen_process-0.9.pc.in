@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Zen Process
+Description: The Process/Pipline component of the Zen project.
+#Requires: 
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lzen_process-0.9
+Cflags: -I${includedir}/zen_process-0.9 -I${libdir}/zen_process-0.9/include

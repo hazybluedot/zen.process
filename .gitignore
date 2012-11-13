@@ -1,6 +1,5 @@
 *.o
 *~
-*.in
 GPATH
 GRTAGS
 GTAGS
