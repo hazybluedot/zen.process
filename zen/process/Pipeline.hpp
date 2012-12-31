@@ -1,6 +1,10 @@
 #ifndef _ZEN_PROCESS_PIPELINE_HPP_
 #define _ZEN_PROCESS_PIPELINE_HPP_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <vector>
 #include <string>

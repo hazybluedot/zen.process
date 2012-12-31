@@ -18,15 +18,16 @@ AC_PROG_CXX
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_ARG_WITH([jsoncpp], AS_HELP_STRING([--without-jsoncpp], [Build without jsoncpp library (default: test)]))
+AC_ARG_WITH([jsoncpp], AS_HELP_STRING([--without-jsoncpp], [Build without jsoncpp library]))
 
 AS_IF([test "x$with_jsoncpp" != "xno"], [
-AC_DEFINE(HAVE_JSONCPP, [1], [test])
+AC_DEFINE(HAVE_JSONCPP, [1], [Define if jsoncpp library is to be used])
 AC_ARG_WITH([jsoncpp-include-path],
   [AS_HELP_STRING([--with-jsoncpp-include-path],
     [location of the JSONcpp headers, defaults to /usr/include/jsoncpp])],
   [JSONCPP_CFLAGS="-I$withval"],
   [JSONCPP_CFLAGS='-I/usr/include/jsoncpp'])
+AC_MSG_NOTICE([using jsoncpp library])
 AC_SUBST([JSONCPP_CFLAGS])
 
 AC_ARG_WITH([jsoncpp-lib-path],
@@ -37,9 +38,6 @@ AC_SUBST([JSONCPP_LIBS])
 ])
 
 # Get JSONcpp library and include locations
-
-# Need to push C++ for AX_BOOST macros to work properly
-AC_LANG_PUSH(C++)
 
 # Checks for header files.
 AC_CHECK_HEADERS([unistd.h fcntl.h])
@@ -55,6 +53,7 @@ AC_CHECK_FUNCS([dup2 pipe2])
 AC_FUNC_FORK
 
 # global C++ flags, notably we want to use the c++11 standard
+AC_LANG_PUSH(C++)
 AX_CXX_COMPILE_STDCXX_11(noext)
 
 # Generate output

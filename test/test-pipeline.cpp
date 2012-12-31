@@ -16,11 +16,17 @@
    along with zen.process.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <iostream>
 #include "../zen/process/Pipeline.hpp"
 
 #ifdef HAVE_JSONCPP
 #include <json/json.h>
+#else
+#warning "No jsoncpp"
 #endif
 
 int main(int argc, char* argv[])
