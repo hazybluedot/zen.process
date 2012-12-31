@@ -17,12 +17,10 @@
 */
 
 #include <iostream>
-#include "zen/process/Pipeline.hpp"
-
-#define HAVE_JSONCPP
+#include "../zen/process/Pipeline.hpp"
 
 #ifdef HAVE_JSONCPP
-#include <jsoncpp/json.h>
+#include <json/json.h>
 #endif
 
 int main(int argc, char* argv[])

@@ -7,7 +7,7 @@
 #include <memory>
 
 #ifdef HAVE_JSONCPP
-#include <jsoncpp/json.h>
+#include <json/json.h>
 #endif
 
 #include "types.hpp"
