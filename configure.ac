@@ -54,7 +54,7 @@ AC_FUNC_FORK
 
 # global C++ flags, notably we want to use the c++11 standard
 AC_LANG_PUSH(C++)
-AX_CXX_COMPILE_STDCXX_11(noext)
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 # Generate output
 AC_CONFIG_FILES([Makefile
