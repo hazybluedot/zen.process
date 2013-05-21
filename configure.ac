@@ -59,9 +59,6 @@ AX_CXX_COMPILE_STDCXX_11([noext])
 # Generate output
 AC_CONFIG_FILES([Makefile
 		zen_process-0.9.pc
-                m4/Makefile
-                zen/Makefile
-                zen/process/Makefile
-                test/Makefile])
+                m4/Makefile])
 
 AC_OUTPUT
